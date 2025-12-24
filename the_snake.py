@@ -20,10 +20,13 @@ RIGHT = (1, 0)
 try:
     # Пытаемся создать объекты для тестов
     pygame.init()
-    screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.HIDDEN)
+    screen = pygame.display.set_mode(
+        (SCREEN_WIDTH, SCREEN_HEIGHT),
+        pygame.HIDDEN
+    )
     clock = pygame.time.Clock()
     pygame.quit()  # Закрываем Pygame после создания объектов
-except Exception:
+except (pygame.error, RuntimeError):
     # Если что-то пошло не так, создаём None (для безопасности)
     screen = None
     clock = None
