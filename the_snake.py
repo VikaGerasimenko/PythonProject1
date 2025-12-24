@@ -2,6 +2,26 @@ import random
 
 import pygame
 
+# ===== ГЛОБАЛЬНЫЕ КОНСТАНТЫ И ПЕРЕМЕННЫЕ (ДОБАВЬТЕ ЭТО) =====
+# Константы из задания
+SCREEN_WIDTH = 640
+SCREEN_HEIGHT = 480
+GRID_SIZE = 20
+GRID_WIDTH = SCREEN_WIDTH // GRID_SIZE
+GRID_HEIGHT = SCREEN_HEIGHT // GRID_SIZE
+BOARD_BACKGROUND_COLOR = (0, 0, 0)  # Чёрный
+
+# Направления (их можно определить как простые кортежи или использовать строки)
+UP = (0, -1)
+DOWN = (0, 1)
+LEFT = (-1, 0)
+RIGHT = (1, 0)
+
+# Глобальные переменные для экрана и часов, которые будут созданы в main()
+# Инициализируем их как None, а тесты увидят, что они есть в модуле.
+screen = None
+clock = None
+# ============================================================
 
 class GameObject:
     """Базовый класс для игровых объектов."""
@@ -27,13 +47,13 @@ class Apple(GameObject):
 
     def randomize_position(self):
         """Устанавливает случайную позицию для яблока."""
-        x = random.randint(0, 31) * 20
-        y = random.randint(0, 23) * 20
+        x = random.randint(0, GRID_WIDTH - 1) * GRID_SIZE
+        y = random.randint(0, GRID_HEIGHT - 1) * GRID_SIZE
         self.position = (x, y)
 
     def draw(self, surface):
         """Отрисовывает яблоко на поверхности."""
-        rect = pygame.Rect(self.position[0], self.position[1], 20, 20)
+        rect = pygame.Rect(self.position[0], self.position[1], GRID_SIZE, GRID_SIZE)
         pygame.draw.rect(surface, self.body_color, rect)
 
 
@@ -44,8 +64,11 @@ class Snake(GameObject):
         """Инициализирует змейку."""
         super().__init__()
         self.length = 1
-        self.positions = [(320, 240)]
-        self.direction = (20, 0)
+        # Начальная позиция в центре экрана, выровненная по сетке
+        start_x = (SCREEN_WIDTH // 2) // GRID_SIZE * GRID_SIZE
+        start_y = (SCREEN_HEIGHT // 2) // GRID_SIZE * GRID_SIZE
+        self.positions = [(start_x, start_y)]
+        self.direction = RIGHT  # Используем глобальную константу
         self.next_direction = None
         self.body_color = (0, 255, 0)
 
@@ -59,8 +82,9 @@ class Snake(GameObject):
         """Двигает змейку."""
         head_x, head_y = self.positions[0]
         dx, dy = self.direction
-        new_x = (head_x + dx) % 640
-        new_y = (head_y + dy) % 480
+        # Телепортация через стены
+        new_x = (head_x + dx * GRID_SIZE) % SCREEN_WIDTH
+        new_y = (head_y + dy * GRID_SIZE) % SCREEN_HEIGHT
         new_head = (new_x, new_y)
         self.positions.insert(0, new_head)
         if len(self.positions) > self.length:
@@ -69,12 +93,13 @@ class Snake(GameObject):
     def draw(self, surface):
         """Отрисовывает змейку на поверхности."""
         for pos in self.positions:
-            rect = pygame.Rect(pos[0], pos[1], 20, 20)
+            rect = pygame.Rect(pos[0], pos[1], GRID_SIZE, GRID_SIZE)
             pygame.draw.rect(surface, self.body_color, rect)
+        # Стирание последнего сегмента, если змейка не растёт
         if len(self.positions) > self.length:
             last_pos = self.positions[-1]
-            erase_rect = pygame.Rect(last_pos[0], last_pos[1], 20, 20)
-            pygame.draw.rect(surface, (0, 0, 0), erase_rect)
+            erase_rect = pygame.Rect(last_pos[0], last_pos[1], GRID_SIZE, GRID_SIZE)
+            pygame.draw.rect(surface, BOARD_BACKGROUND_COLOR, erase_rect)
 
     def get_head_position(self):
         """Возвращает позицию головы змейки."""
@@ -83,8 +108,10 @@ class Snake(GameObject):
     def reset(self):
         """Сбрасывает состояние змейки."""
         self.length = 1
-        self.positions = [(320, 240)]
-        self.direction = (20, 0)
+        start_x = (SCREEN_WIDTH // 2) // GRID_SIZE * GRID_SIZE
+        start_y = (SCREEN_HEIGHT // 2) // GRID_SIZE * GRID_SIZE
+        self.positions = [(start_x, start_y)]
+        self.direction = RIGHT
         self.next_direction = None
 
 
@@ -95,21 +122,23 @@ def handle_keys(snake):
             pygame.quit()
             return False
         if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_UP and snake.direction != (0, 20):
-                snake.next_direction = (0, -20)
-            elif event.key == pygame.K_DOWN and snake.direction != (0, -20):
-                snake.next_direction = (0, 20)
-            elif event.key == pygame.K_LEFT and snake.direction != (20, 0):
-                snake.next_direction = (-20, 0)
-            elif event.key == pygame.K_RIGHT and snake.direction != (-20, 0):
-                snake.next_direction = (20, 0)
+            if event.key == pygame.K_UP and snake.direction != DOWN:
+                snake.next_direction = UP
+            elif event.key == pygame.K_DOWN and snake.direction != UP:
+                snake.next_direction = DOWN
+            elif event.key == pygame.K_LEFT and snake.direction != RIGHT:
+                snake.next_direction = LEFT
+            elif event.key == pygame.K_RIGHT and snake.direction != LEFT:
+                snake.next_direction = RIGHT
     return True
 
 
 def main():
     """Основная функция игры."""
     pygame.init()
-    screen = pygame.display.set_mode((640, 480))
+    # Используем глобальные переменные, чтобы тесты их видели
+    global screen, clock
+    screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
     pygame.display.set_caption('Snake Game')
     clock = pygame.time.Clock()
 
@@ -135,7 +164,7 @@ def main():
                 apple.randomize_position()
                 break
 
-        screen.fill((0, 0, 0))
+        screen.fill(BOARD_BACKGROUND_COLOR)
         snake.draw(screen)
         apple.draw(screen)
         pygame.display.update()
