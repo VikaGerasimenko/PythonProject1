@@ -15,6 +15,7 @@ DOWN = (0, 1)
 LEFT = (-1, 0)
 RIGHT = (1, 0)
 
+# Создаём объекты сразу, но Pygame ещё не инициализирован
 screen = None
 clock = None
 # =============================================
@@ -137,13 +138,20 @@ def handle_keys(snake):
     return True
 
 
-def main():
-    """Основная функция игры."""
-    pygame.init()
+def init_pygame():
+    """Инициализирует Pygame и создаёт screen и clock."""
     global screen, clock
+    pygame.init()
     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
     pygame.display.set_caption('Snake Game')
     clock = pygame.time.Clock()
+
+
+def main():
+    """Основная функция игры."""
+    # Инициализируем Pygame только если он ещё не инициализирован
+    if screen is None or clock is None:
+        init_pygame()
 
     snake = Snake()
     apple = Apple()
@@ -175,4 +183,6 @@ def main():
 
 
 if __name__ == '__main__':
+    # Этот код выполняется только при прямом запуске файла
+    init_pygame()
     main()
