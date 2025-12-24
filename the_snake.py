@@ -2,26 +2,24 @@ import random
 
 import pygame
 
-# ===== ГЛОБАЛЬНЫЕ КОНСТАНТЫ И ПЕРЕМЕННЫЕ (ДОБАВЬТЕ ЭТО) =====
-# Константы из задания
+
+# ===== ГЛОБАЛЬНЫЕ КОНСТАНТЫ И ПЕРЕМЕННЫЕ =====
 SCREEN_WIDTH = 640
 SCREEN_HEIGHT = 480
 GRID_SIZE = 20
 GRID_WIDTH = SCREEN_WIDTH // GRID_SIZE
 GRID_HEIGHT = SCREEN_HEIGHT // GRID_SIZE
-BOARD_BACKGROUND_COLOR = (0, 0, 0)  # Чёрный
+BOARD_BACKGROUND_COLOR = (0, 0, 0)
 
-# Направления (их можно определить как простые кортежи или использовать строки)
 UP = (0, -1)
 DOWN = (0, 1)
 LEFT = (-1, 0)
 RIGHT = (1, 0)
 
-# Глобальные переменные для экрана и часов, которые будут созданы в main()
-# Инициализируем их как None, а тесты увидят, что они есть в модуле.
 screen = None
 clock = None
-# ============================================================
+# =============================================
+
 
 class GameObject:
     """Базовый класс для игровых объектов."""
@@ -53,7 +51,12 @@ class Apple(GameObject):
 
     def draw(self, surface):
         """Отрисовывает яблоко на поверхности."""
-        rect = pygame.Rect(self.position[0], self.position[1], GRID_SIZE, GRID_SIZE)
+        rect = pygame.Rect(
+            self.position[0],
+            self.position[1],
+            GRID_SIZE,
+            GRID_SIZE
+        )
         pygame.draw.rect(surface, self.body_color, rect)
 
 
@@ -64,11 +67,10 @@ class Snake(GameObject):
         """Инициализирует змейку."""
         super().__init__()
         self.length = 1
-        # Начальная позиция в центре экрана, выровненная по сетке
         start_x = (SCREEN_WIDTH // 2) // GRID_SIZE * GRID_SIZE
         start_y = (SCREEN_HEIGHT // 2) // GRID_SIZE * GRID_SIZE
         self.positions = [(start_x, start_y)]
-        self.direction = RIGHT  # Используем глобальную константу
+        self.direction = RIGHT
         self.next_direction = None
         self.body_color = (0, 255, 0)
 
@@ -82,7 +84,6 @@ class Snake(GameObject):
         """Двигает змейку."""
         head_x, head_y = self.positions[0]
         dx, dy = self.direction
-        # Телепортация через стены
         new_x = (head_x + dx * GRID_SIZE) % SCREEN_WIDTH
         new_y = (head_y + dy * GRID_SIZE) % SCREEN_HEIGHT
         new_head = (new_x, new_y)
@@ -95,10 +96,14 @@ class Snake(GameObject):
         for pos in self.positions:
             rect = pygame.Rect(pos[0], pos[1], GRID_SIZE, GRID_SIZE)
             pygame.draw.rect(surface, self.body_color, rect)
-        # Стирание последнего сегмента, если змейка не растёт
         if len(self.positions) > self.length:
             last_pos = self.positions[-1]
-            erase_rect = pygame.Rect(last_pos[0], last_pos[1], GRID_SIZE, GRID_SIZE)
+            erase_rect = pygame.Rect(
+                last_pos[0],
+                last_pos[1],
+                GRID_SIZE,
+                GRID_SIZE
+            )
             pygame.draw.rect(surface, BOARD_BACKGROUND_COLOR, erase_rect)
 
     def get_head_position(self):
@@ -136,7 +141,6 @@ def handle_keys(snake):
 def main():
     """Основная функция игры."""
     pygame.init()
-    # Используем глобальные переменные, чтобы тесты их видели
     global screen, clock
     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
     pygame.display.set_caption('Snake Game')
