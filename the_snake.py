@@ -1,4 +1,5 @@
 import random
+import sys
 
 import pygame
 
@@ -136,7 +137,6 @@ def handle_keys(snake):
     """Обрабатывает нажатия клавиш."""
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
-            pygame.quit()
             return False
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_UP and snake.direction != DOWN:
@@ -147,6 +147,8 @@ def handle_keys(snake):
                 snake.next_direction = LEFT
             elif event.key == pygame.K_RIGHT and snake.direction != LEFT:
                 snake.next_direction = RIGHT
+            elif event.key == pygame.K_ESCAPE:  # Добавим клавишу выхода
+                return False
     return True
 
 
@@ -186,6 +188,8 @@ def main():
         apple.draw(screen)
         pygame.display.update()
         clock.tick(20)
+    
+    pygame.quit()
 
 
 if __name__ == '__main__':
