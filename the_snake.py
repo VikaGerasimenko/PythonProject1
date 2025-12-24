@@ -1,7 +1,5 @@
 import random
-
 import pygame
-
 
 # ===== ГЛОБАЛЬНЫЕ КОНСТАНТЫ И ПЕРЕМЕННЫЕ =====
 SCREEN_WIDTH = 640
